@@ -26,8 +26,18 @@
     <!-- Property for PYTHONPATH -->
     <property name="pythonpath" refid="pythonpath" />
 
-    <!-- Unit test suite. -->
+    <!-- Script for unit test suite. -->
     <property name="unit.test.script" location="src/test/unittest_suite.py" />
+
+    <!-- Below are Property for reports -->
+
+    <!-- Directory for reports. -->
+    <property name="reports.directory" location="reports" />
+
+    <property name="reports.coverage.directory"
+        location="${reports.directory}/coverage" />
+
+    <!-- Macros and targets for test -->
 
     <macrodef name="exec.with.pythonpath"
             description="Exec task with PYTHONPATH.">
@@ -52,6 +62,11 @@
         </sequential>
     </macrodef>
 
+    <!-- Prepare for reports. -->
+    <target name="-prepare-reports">
+        <mkdir dir="${reports.directory}" />
+    </target>
+
     <target name="test" description="Run tests.">
         <python>
             <args>
@@ -61,13 +76,11 @@
     </target>
 
     <target name="clean" description="Clean generated files.">
-        <!-- Gelerated file by coverage tasks. -->
+        <delete dir="${reports.directory}" />
         <delete file=".coverage" />
-        <delete dir="htmlcov" />
-        <delete file="coverage.xml" />
     </target>
 
-    <!-- Below are macro and targets for coverage. -->
+    <!-- Macro and targets for coverage. -->
 
     <macrodef name="coverage" description="Execute coverage.py.">
         <element name="args" description="Arguments of coverage." />
@@ -94,11 +107,13 @@
         </coverage>
     </target>
 
-    <target name="test-coverage-html" depends="test-coverage"
+    <target name="test-coverage-html" depends="-prepare-reports, test-coverage"
             description="Run tests and measure coverage, report as HTML.">
         <coverage>
             <args>
                 <arg value="html" />
+                <arg value="--directory" />
+                <arg file="${reports.coverage.directory}" />
             </args>
         </coverage>
     </target>
