@@ -155,9 +155,15 @@ class LogMatcher:
         with self.__lock:
             self.__match = unicode(match)
 
-        # Wait matching until timeout.
-        self.__matchedEvent.wait(timeout)
-        self.__logcatThread.terminate()
+        try:
+            # If the log has already matched, return immediately.
+            if self.isMatched():
+                return True
+
+            # Wait matching until timeout.
+            self.__matchedEvent.wait(timeout)
+        finally:
+            self.__logcatThread.terminate()
 
         return self.__matchedEvent.isSet()
 
