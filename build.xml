@@ -16,9 +16,12 @@
     limitations under the License.
 -->
 <project name="andorid.logmatcher.build" default="test">
+    <!-- Path of main codes. -->
+    <property name="main.code.directory" location="src/main" />
+
     <!-- Path-like structure for PYTHONPATH -->
     <path id="pythonpath">
-        <pathelement location="src/main" />
+        <pathelement location="${main.code.directory}" />
         <pathelement location="src/test" />
         <pathelement location="externals/test" />
     </path>
@@ -97,9 +100,11 @@
         <coverage>
             <args>
                 <arg value="run" />
+                <arg value="--source=${main.code.directory}" />
                 <arg value="${unit.test.script}" />
             </args>
         </coverage>
+        <echo message="${line.separator}" />
         <coverage>
             <args>
                 <arg value="report" />
