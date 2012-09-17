@@ -193,7 +193,7 @@ class LogMatcher:
         '''
         with self.__lock:
             if self.__match:
-                return self.__log.find(self.__match)
+                return 0 <= self.__log.find(self.__match)
             else:
                 return False
 
