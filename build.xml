@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="andorid.logmatcher.build" default="test">
+    <!-- Path-like structure for PYTHONPATH -->
+    <path id="pythonpath">
+        <pathelement location="src/main" />
+        <pathelement location="src/test" />
+        <pathelement location="externals/test" />
+    </path>
+
+    <!-- Property for PYTHONPATH -->
+    <property name="pythonpath" refid="pythonpath" />
+
+    <!-- Unit test suite. -->
+    <property name="unit.test.script" location="src/test/unittest_suite.py" />
+
+    <macrodef name="exec.with.pythonpath"
+            description="Exec task with PYTHONPATH.">
+        <attribute name="executable" description="Executable name." />
+        <element name="arguments" description="Arguments of executable." />
+        <sequential>
+            <exec executable="@{executable}" searchpath="true">
+                <arguments />
+                <env key="PYTHONPATH" value="${pythonpath}" />
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="python" description="Execute python.">
+        <element name="args" description="Arguments of python." />
+        <sequential>
+            <exec.with.pythonpath executable="python">
+                <arguments>
+                    <args />
+                </arguments>
+            </exec.with.pythonpath>
+        </sequential>
+    </macrodef>
+
+    <target name="test" description="Run tests.">
+        <python>
+            <args>
+                <arg path="${unit.test.script}" />
+            </args>
+        </python>
+    </target>
+
+    <target name="clean" description="Clean generated files.">
+        <!-- Gelerated file by coverage tasks. -->
+        <delete file=".coverage" />
+        <delete dir="htmlcov" />
+        <delete file="coverage.xml" />
+    </target>
+
+    <!-- Below are macro and targets for coverage. -->
+
+    <macrodef name="coverage" description="Execute coverage.py.">
+        <element name="args" description="Arguments of coverage." />
+        <sequential>
+            <exec.with.pythonpath executable="coverage">
+                <arguments>
+                    <args />
+                </arguments>
+            </exec.with.pythonpath>
+        </sequential>
+    </macrodef>
+
+    <target name="test-coverage" description="Run tests and measure coverage.">
+        <coverage>
+            <args>
+                <arg value="run" />
+                <arg value="${unit.test.script}" />
+            </args>
+        </coverage>
+        <coverage>
+            <args>
+                <arg value="report" />
+            </args>
+        </coverage>
+    </target>
+
+    <target name="test-coverage-html" depends="test-coverage"
+            description="Run tests and measure coverage, report as HTML.">
+        <coverage>
+            <args>
+                <arg value="html" />
+            </args>
+        </coverage>
+    </target>
+</project>
