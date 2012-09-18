@@ -35,7 +35,9 @@
     <!-- Script for unit test suite for a CI server. -->
     <property name="ci.unit.test.script" location="src/test/ci_unittest.py" />
 
-    <!-- Below are Property for reports -->
+    <!--
+        Properties for reports.
+    -->
 
     <!-- Directory for reports. -->
     <property name="reports.directory" location="reports" />
@@ -52,7 +54,9 @@
     <property name="reports.coverage.xml"
         location="${reports.directory}/coverage.xml" />
 
-    <!-- Macros and targets for test -->
+    <!--
+        Macros and targets for test.
+    -->
 
     <macrodef name="exec.with.pythonpath"
             description="Exec task with PYTHONPATH.">
@@ -95,7 +99,9 @@
         <delete file=".coverage" />
     </target>
 
-    <!-- Macro and targets for coverage. -->
+    <!--
+        Macros and targets for coverage.
+    -->
 
     <macrodef name="coverage" description="Execute coverage.py.">
         <element name="args" description="Arguments of coverage." />
@@ -148,6 +154,10 @@
         <echo
             message="HTML coverage report is ${reports.coverage.directory}" />
     </target>
+
+    <!--
+        Target for CI.
+    -->
 
     <target name="ci-test-coverage" depends="-prepare-reports"
             description="Run tests and measure coverage, report as XML.">
