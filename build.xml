@@ -36,6 +36,13 @@
     <property name="ci.unit.test.script" location="src/test/ci_unittest.py" />
 
     <!--
+        Properties for executables.
+    -->
+
+    <property name="python" value="python" />
+    <property name="coverage" value="coverage" />
+
+    <!--
         Properties for reports.
     -->
 
@@ -73,7 +80,7 @@
     <macrodef name="python" description="Execute python.">
         <element name="args" description="Arguments of python." />
         <sequential>
-            <exec.with.pythonpath executable="python">
+            <exec.with.pythonpath executable="${python}">
                 <arguments>
                     <args />
                 </arguments>
@@ -106,7 +113,7 @@
     <macrodef name="coverage" description="Execute coverage.py.">
         <element name="args" description="Arguments of coverage." />
         <sequential>
-            <exec.with.pythonpath executable="coverage">
+            <exec.with.pythonpath executable="${coverage}">
                 <arguments>
                     <args />
                 </arguments>
