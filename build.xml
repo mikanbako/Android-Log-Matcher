@@ -32,13 +32,25 @@
     <!-- Script for unit test suite. -->
     <property name="unit.test.script" location="src/test/unittest_suite.py" />
 
+    <!-- Script for unit test suite for a CI server. -->
+    <property name="ci.unit.test.script" location="src/test/ci_unittest.py" />
+
     <!-- Below are Property for reports -->
 
     <!-- Directory for reports. -->
     <property name="reports.directory" location="reports" />
 
+    <!-- Directory for HTML coverage report. -->
     <property name="reports.coverage.directory"
         location="${reports.directory}/coverage" />
+
+    <!-- File of XML test report. -->
+    <property name="reports.test.result"
+        location="${reports.directory}/test_result.xml" />
+
+    <!-- File of XML coverage report. -->
+    <property name="reports.coverage.xml"
+        location="${reports.directory}/coverage.xml" />
 
     <!-- Macros and targets for test -->
 
@@ -48,8 +60,8 @@
         <element name="arguments" description="Arguments of executable." />
         <sequential>
             <exec executable="@{executable}" searchpath="true">
-                <arguments />
                 <env key="PYTHONPATH" value="${pythonpath}" />
+                <arguments />
             </exec>
         </sequential>
     </macrodef>
@@ -96,24 +108,34 @@
         </sequential>
     </macrodef>
 
-    <target name="test-coverage" description="Run tests and measure coverage.">
-        <coverage>
-            <args>
-                <arg value="run" />
-                <arg value="--source=${main.code.directory}" />
-                <arg value="${unit.test.script}" />
-            </args>
-        </coverage>
+    <macrodef name="coverage-run" description="Run tests and measure coverage.">
+        <attribute name="script" description="Location of test script." />
+        <element name="script-exec-arguments" optional="true"
+            description="Arguments of exec for scripts." />
+        <sequential>
+            <coverage>
+                <args>
+                    <arg value="run" />
+                    <arg value="--source=${main.code.directory}" />
+                    <arg value="@{script}" />
+                    <script-exec-arguments />
+                </args>
+            </coverage>
+        </sequential>
+    </macrodef>
+
+    <target name="test-coverage" depends="-prepare-reports"
+            description="Run tests and measure coverage, report as HTML.">
+        <coverage-run script="${unit.test.script}" />
+
         <echo message="${line.separator}" />
+
         <coverage>
             <args>
                 <arg value="report" />
             </args>
         </coverage>
-    </target>
 
-    <target name="test-coverage-html" depends="-prepare-reports, test-coverage"
-            description="Run tests and measure coverage, report as HTML.">
         <coverage>
             <args>
                 <arg value="html" />
@@ -121,5 +143,30 @@
                 <arg file="${reports.coverage.directory}" />
             </args>
         </coverage>
+
+        <echo message="${line.separator}" />
+        <echo
+            message="HTML coverage report is ${reports.coverage.directory}" />
+    </target>
+
+    <target name="ci-test-coverage" depends="-prepare-reports"
+            description="Run tests and measure coverage, report as XML.">
+        <coverage-run script="${ci.unit.test.script}">
+            <script-exec-arguments>
+                <redirector output="${reports.test.result}" />
+            </script-exec-arguments>
+        </coverage-run>
+
+        <echo message="XML test report is ${reports.test.result}" />
+
+        <coverage>
+            <args>
+                <arg value="xml" />
+                <arg value="-o" />
+                <arg file="${reports.coverage.xml}" />
+            </args>
+        </coverage>
+
+        <echo message="XML coverage report is ${reports.coverage.xml}" />
     </target>
 </project>
