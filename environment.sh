@@ -4,4 +4,4 @@
 
 TOP_DIRECTORY=`pwd`
 
-export PYTHONPATH="$TOP_DIRECTORY/src/main":"$TOP_DIRECTORY/src/test":"$TOP_DIRECTORY/externals/test"
+export PYTHONPATH="$TOP_DIRECTORY/src/main":"$TOP_DIRECTORY/src/unit-test":"$TOP_DIRECTORY/src/integration-test":"$TOP_DIRECTORY/externals/test"

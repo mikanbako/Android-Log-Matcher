@@ -19,10 +19,18 @@
     <!-- Path of main codes. -->
     <property name="main.code.directory" location="src/main" />
 
+    <!-- Path of unit test codes. -->
+    <property name="unit.test.code.directory" location="src/unit-test" />
+
+    <!-- Path of integration test codes. -->
+    <property name="integration.test.code.directory"
+        location="src/integration-test" />
+
     <!-- Path-like structure for PYTHONPATH -->
     <path id="pythonpath">
         <pathelement location="${main.code.directory}" />
-        <pathelement location="src/test" />
+        <pathelement location="${unit.test.code.directory}" />
+        <pathelement location="${integration.test.code.directory}" />
         <pathelement location="externals/test" />
     </path>
 
@@ -30,10 +38,16 @@
     <property name="pythonpath" refid="pythonpath" />
 
     <!-- Script for unit test suite. -->
-    <property name="unit.test.script" location="src/test/unittest_suite.py" />
+    <property name="unit.test.script"
+        location="${unit.test.code.directory}/unittest_suite.py" />
 
     <!-- Script for unit test suite for a CI server. -->
-    <property name="ci.unit.test.script" location="src/test/ci_unittest.py" />
+    <property name="ci.unit.test.script"
+        location="${unit.test.code.directory}/ci_unittest.py" />
+
+    <!-- Script for integration test suite. -->
+    <property name="integration.test.script"
+        location="${integration.test.code.directory}/integration_test_suite.py" />
 
     <!--
         Properties for executables.
@@ -41,6 +55,7 @@
 
     <property name="python" value="python" />
     <property name="coverage" value="coverage" />
+    <property name="monkeyrunner" value="monkeyrunner" />
 
     <!--
         Properties for reports.
@@ -49,16 +64,16 @@
     <!-- Directory for reports. -->
     <property name="reports.directory" location="reports" />
 
-    <!-- Directory for HTML coverage report. -->
-    <property name="reports.coverage.directory"
+    <!-- Directory for HTML coverage of unit test report. -->
+    <property name="reports.unit.test.coverage.directory"
         location="${reports.directory}/coverage" />
 
-    <!-- File of XML test report. -->
-    <property name="reports.test.result"
+    <!-- File of XML reports.unit.test.result test report. -->
+    <property name="reports.unit.test.result"
         location="${reports.directory}/test_result.xml" />
 
-    <!-- File of XML coverage report. -->
-    <property name="reports.coverage.xml"
+    <!-- File of XML coverage of unit test report. -->
+    <property name="reports.unit.test.coverage.xml"
         location="${reports.directory}/coverage.xml" />
 
     <!--
@@ -88,17 +103,35 @@
         </sequential>
     </macrodef>
 
+    <macrodef name="monkeyrunner" description="Execute monkeyrunner.">
+        <element name="args" description="Arguments of monkeyrunner." />
+        <sequential>
+            <exec executable="${monkeyrunner}"
+                    searchpath="true" failonerror="true">
+                <args />
+            </exec>
+        </sequential>
+    </macrodef>
+
     <!-- Prepare for reports. -->
     <target name="-prepare-reports">
         <mkdir dir="${reports.directory}" />
     </target>
 
-    <target name="test" description="Run tests.">
+    <target name="test" description="Run unit tests.">
         <python>
             <args>
-                <arg path="${unit.test.script}" />
+                <arg file="${unit.test.script}" />
             </args>
         </python>
+    </target>
+
+    <target name="integration-test" description="Run integration tests. Require Android emulator or device.">
+        <monkeyrunner>
+            <args>
+                <arg file="${integration.test.script}" />
+            </args>
+        </monkeyrunner>
     </target>
 
     <target name="clean" description="Clean generated files.">
@@ -121,10 +154,11 @@
         </sequential>
     </macrodef>
 
-    <macrodef name="coverage-run" description="Run tests and measure coverage.">
-        <attribute name="script" description="Location of test script." />
+    <macrodef name="coverage-run"
+            description="Run a script and measure coverage.">
+        <attribute name="script" description="Location of the script." />
         <element name="script-exec-arguments" optional="true"
-            description="Arguments of exec for scripts." />
+            description="Arguments of exec for the script." />
         <sequential>
             <coverage>
                 <args>
@@ -138,7 +172,7 @@
     </macrodef>
 
     <target name="test-coverage" depends="-prepare-reports"
-            description="Run tests and measure coverage, report as HTML.">
+            description="Run unit tests and measure coverage, report as HTML.">
         <coverage-run script="${unit.test.script}" />
 
         <echo message="${line.separator}" />
@@ -153,13 +187,13 @@
             <args>
                 <arg value="html" />
                 <arg value="--directory" />
-                <arg file="${reports.coverage.directory}" />
+                <arg file="${reports.unit.test.coverage.directory}" />
             </args>
         </coverage>
 
         <echo message="${line.separator}" />
         <echo
-            message="HTML coverage report is ${reports.coverage.directory}" />
+            message="HTML coverage of unit test report is ${reports.unit.test.coverage.directory}" />
     </target>
 
     <!--
@@ -167,23 +201,23 @@
     -->
 
     <target name="ci-test-coverage" depends="-prepare-reports"
-            description="Run tests and measure coverage, report as XML.">
+            description="Run unit tests and measure coverage, report as XML.">
         <coverage-run script="${ci.unit.test.script}">
             <script-exec-arguments>
-                <redirector output="${reports.test.result}" />
+                <redirector output="${reports.unit.test.result}" />
             </script-exec-arguments>
         </coverage-run>
 
-        <echo message="XML test report is ${reports.test.result}" />
+        <echo message="XML unit test report is ${reports.unit.test.result}" />
 
         <coverage>
             <args>
                 <arg value="xml" />
                 <arg value="-o" />
-                <arg file="${reports.coverage.xml}" />
+                <arg file="${reports.unit.test.coverage.xml}" />
             </args>
         </coverage>
 
-        <echo message="XML coverage report is ${reports.coverage.xml}" />
+        <echo message="XML coverage of unit test report is ${reports.unit.test.coverage.xml}" />
     </target>
 </project>
