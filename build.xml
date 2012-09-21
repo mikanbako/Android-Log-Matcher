@@ -85,7 +85,8 @@
         <attribute name="executable" description="Executable name." />
         <element name="arguments" description="Arguments of executable." />
         <sequential>
-            <exec executable="@{executable}" searchpath="true">
+            <exec executable="@{executable}"
+                    searchpath="true" failonerror="true">
                 <env key="PYTHONPATH" value="${pythonpath}" />
                 <arguments />
             </exec>
