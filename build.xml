@@ -45,12 +45,17 @@
     <property name="ci.unit.test.script"
         location="${unit.test.code.directory}/ci_unittest.py" />
 
+    <!-- Script for integration test suite. -->
+    <property name="integration.test.script"
+        location="${integration.test.code.directory}/integration_test_suite.py" />
+
     <!--
         Properties for executables.
     -->
 
     <property name="python" value="python" />
     <property name="coverage" value="coverage" />
+    <property name="monkeyrunner" value="monkeyrunner" />
 
     <!--
         Properties for reports.
@@ -98,6 +103,16 @@
         </sequential>
     </macrodef>
 
+    <macrodef name="monkeyrunner" description="Execute monkeyrunner.">
+        <element name="args" description="Arguments of monkeyrunner." />
+        <sequential>
+            <exec executable="${monkeyrunner}"
+                    searchpath="true" failonerror="true">
+                <args />
+            </exec>
+        </sequential>
+    </macrodef>
+
     <!-- Prepare for reports. -->
     <target name="-prepare-reports">
         <mkdir dir="${reports.directory}" />
@@ -106,9 +121,17 @@
     <target name="test" description="Run unit tests.">
         <python>
             <args>
-                <arg path="${unit.test.script}" />
+                <arg file="${unit.test.script}" />
             </args>
         </python>
+    </target>
+
+    <target name="integration-test" description="Run integration tests. Require Android emulator or device.">
+        <monkeyrunner>
+            <args>
+                <arg file="${integration.test.script}" />
+            </args>
+        </monkeyrunner>
     </target>
 
     <target name="clean" description="Clean generated files.">
