@@ -47,6 +47,9 @@ def kill(popen):
 
 ###
 
+# Default waiting timeout.
+defaultTimeout = 5
+
 class LogcatThread(Thread):
     u'''
     Thread that runs logcat.
@@ -142,7 +145,7 @@ class LogMatcher:
         '''
         return Event()
 
-    def wait(self, match, timeout):
+    def wait(self, match, timeout = defaultTimeout):
         u'''
         Wait called thread until log is matched.
 
@@ -224,7 +227,7 @@ def start():
     currentLogcatMatcher = LogMatcher()
     currentLogcatMatcher.start()
 
-def wait(match, timeout):
+def wait(match, timeout = defaultTimeout):
     u'''
     Wait matching.
 

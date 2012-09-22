@@ -34,7 +34,7 @@ class TestIntegrationLogMatcher(unittest.TestCase):
 
         device.get().shell(u'am aaa')
 
-        self.assert_(logmatcher.wait('Am', 5))
+        self.assert_(logmatcher.wait('Am'))
 
     def testNoMatched(self):
         logmatcher.start()

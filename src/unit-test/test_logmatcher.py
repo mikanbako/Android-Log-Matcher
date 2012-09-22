@@ -52,6 +52,7 @@ class TestMatchingLog(unittest.TestCase):
     '''
 
     def setUp(self):
+        logmatcher.defaultTimeout = 2
         self.__matcher = MockLogMatcher()
         self.__matcher.start()
 
@@ -92,7 +93,7 @@ class TestMatchingLog(unittest.TestCase):
             logMatcher.onLogReceived(u"matched")
 
         threading.Timer(1, sendLog, [self.__matcher]).start()
-        self.assert_(self.__matcher.wait(u'match', 2))
+        self.assert_(self.__matcher.wait(u'match'))
 
 if __name__ == '__main__':
     unittest.main()
