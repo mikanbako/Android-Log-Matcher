@@ -109,6 +109,7 @@
         <sequential>
             <exec executable="${monkeyrunner}"
                     searchpath="true" failonerror="true">
+                <env key="PYTHONPATH" value="${pythonpath}" />
                 <args />
             </exec>
         </sequential>
