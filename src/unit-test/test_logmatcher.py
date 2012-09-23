@@ -18,6 +18,7 @@
 # Test for matching part of LogMatcher.
 
 import dummy_threading
+import re
 import threading
 import unittest
 
@@ -60,32 +61,39 @@ class TestMatchingLog(unittest.TestCase):
         u'''
         LogMatcher does not match just after LogMatcher is created.
         '''
-        self.assert_(not self.__matcher.isMatched())
+        self.assert_(not self.__matcher.checkMatched())
 
-    def testNotMatchedWhenNoLog(self):
+    def testIllegalMatchArgument(self):
+        u'''
+        ValueError is raised when wait receives no basestring value.
+        '''
+        self.assertRaises(
+            ValueError, self.__matcher.wait, self.__matcher, re.compile('a'))
+
+    def testNotMatchedStringWhenNoLog(self):
         u'''
         LogMatcher does not match when it did not receive any log.
         '''
-        self.assert_(not self.__matcher.wait(u'match', 0.1))
+        self.assert_(self.__matcher.wait(u'match', 0.1) == False)
 
-    def testNotMatchedWhenNotMatchedLog(self):
+    def testNotMatchedStringWhenNotMatchedLog(self):
         u'''
         LogMatcher does not match when it did not receive matched log.
         '''
         self.__matcher.onLogReceived(u'matched')
 
-        self.assert_(not self.__matcher.wait(u'not matched', 0.1))
+        self.assert_(self.__matcher.wait(u'not matched', 0.1) == False)
 
-    def testMatchedBeforeWaiting(self):
+    def testMatchedStringBeforeWaiting(self):
         u'''
         LogMatcher matches before waiting to receive log.
         '''
         self.__matcher.onLogReceived(u'matc')
         self.__matcher.onLogReceived(u'hing')
 
-        self.assert_(self.__matcher.wait(u'match', 0.1))
+        self.assert_(self.__matcher.wait(u'match', 0.1) == True)
 
-    def testMatchingAfterWaiting(self):
+    def testMatchedStringAfterWaiting(self):
         u'''
         LogMatcher matches after waiting to receive log.
         '''
@@ -93,7 +101,37 @@ class TestMatchingLog(unittest.TestCase):
             logMatcher.onLogReceived(u"matched")
 
         threading.Timer(1, sendLog, [self.__matcher]).start()
-        self.assert_(self.__matcher.wait(u'match'))
+        self.assert_(self.__matcher.wait(u'match') == True)
+
+    def testNotMatchedPatternWhenNotMatchedLog(self):
+        u'''
+        LogMatcher does not match pattern when it did not receive matched log.
+        '''
+        self.__matcher.onLogReceived(u'matched')
+
+        self.assert_(
+            self.__matcher.waitPattern(
+                re.compile(ur'not matched'), 0.1) is None)
+
+    def testMatchedPatternBeforeWaiting(self):
+        u'''
+        LogMatcher matches pattern before waiting to receive log.
+        '''
+        self.__matcher.onLogReceived(u'ba123b')
+
+        self.assertEqual(u'123',
+            self.__matcher.waitPattern(re.compile(ur'a(\d+)b')).group(1))
+
+    def testMatchedPatternAfterWaiting(self):
+        u'''
+        LogMatcher matches after waiting to receive log.
+        '''
+        def sendLog(logMatcher):
+            logMatcher.onLogReceived(u'a123b')
+
+        threading.Timer(1, sendLog, [self.__matcher]).start()
+        self.assertEquals(u'123',
+            self.__matcher.waitPattern(ur'a(\d{3})b').group(1))
 
 if __name__ == '__main__':
     unittest.main()

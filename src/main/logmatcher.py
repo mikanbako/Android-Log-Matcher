@@ -21,8 +21,7 @@
 from __future__ import with_statement
 
 import os
-import platform
-import signal
+import re
 import subprocess
 from threading import Event, Thread, RLock
 
@@ -111,7 +110,6 @@ class LogcatThread(Thread):
         if isNeededProcessTerminating:
             kill(self.__adb)
 
-
 class LogMatcher:
     u'''
     Monitor and match log from logcat.
@@ -125,7 +123,7 @@ class LogMatcher:
         self.__logcatThread = self.createLogcatThread()
         self.__lock = RLock()
         self.__log = u''
-        self.__match = None
+        self.__matchFunction = (lambda log: False)
 
         self.__logcatThread.start()
 
@@ -145,30 +143,74 @@ class LogMatcher:
         '''
         return Event()
 
-    def wait(self, match, timeout = defaultTimeout):
+    def waitFunction(self, matchFunction, timeout= defaultTimeout):
         u'''
-        Wait called thread until log is matched.
+        Wait called thread until log is matched from the function.
+
+        If matchFunction returns not None or not False,
+        this method also return it.
 
         Arguments:
-            match : Matching string.
+            matchFunction : Matching function.
+                It has an argument that received log.
+                This function may be called by other thread.
             timeout : Seconds until timeout.
         '''
 
         # Set matching.
         with self.__lock:
-            self.__match = unicode(match)
+            self.__matchFunction = matchFunction
 
         try:
             # If the log has already matched, return immediately.
-            if self.isMatched():
-                return True
+            result = self.checkMatched()
+            if result:
+                return result
 
             # Wait matching until timeout.
             self.__matchedEvent.wait(timeout)
         finally:
             self.__logcatThread.terminate()
 
-        return self.__matchedEvent.isSet()
+        return self.checkMatched()
+
+
+    def wait(self, match, timeout = defaultTimeout):
+        u'''
+        Wait called thread until log is found.
+
+        Arguments:
+            match : Searching string.
+            timeout : Seconds until timeout.
+        Exception :
+            ValueError : If type of match is not str or unicode.
+        '''
+
+        # Verify argument.
+        if not isinstance(match, basestring):
+            raise ValueError(u'match type is ' + unicode(type(match)))
+
+        return self.waitFunction(
+            lambda log: 0 <= log.find(unicode(match)), timeout)
+
+    def waitPattern(self, pattern, timeout = defaultTimeout):
+        u'''
+        Wait called thread until log is found with pattern.
+
+        Arguments :
+            pattern : Searching pattern. str or unicode,
+                compiled regular expression pattern.
+            timeout : Seconds until timeout.
+        '''
+
+        # Convert compiled regex pattern if pattern is basestring.
+        if isinstance(pattern, basestring):
+            waitingPattern = re.compile(unicode(pattern))
+        else:
+            waitingPattern = pattern
+
+        return self.waitFunction(
+            lambda log: waitingPattern.search(log), timeout)
 
     def onLogReceived(self, line):
         u'''
@@ -184,21 +226,18 @@ class LogMatcher:
         # If the line is matched, terminate the logcat and
         # wake the waiting event.
 
-        if self.isMatched():
+        if self.checkMatched():
             self.__logcatThread.terminate()
             self.__matchedEvent.set()
 
-    def isMatched(self):
+    def checkMatched(self):
         u'''
         Check whether the log is matched.
 
         This method may be called by other thread.
         '''
         with self.__lock:
-            if self.__match:
-                return 0 <= self.__log.find(self.__match)
-            else:
-                return False
+            return self.__matchFunction(self.__log)
 
 class LogMatcherRunningException(Exception):
     u'''
@@ -227,21 +266,54 @@ def start():
     currentLogcatMatcher = LogMatcher()
     currentLogcatMatcher.start()
 
-def wait(match, timeout = defaultTimeout):
+def waitFunction(waitFunction):
     u'''
-    Wait matching.
+    Wait using a result of the function.
+
+    It has an argument that receives an instance of LogMatcher.
 
     Arguments :
-        match : Matching string.
+        waitFunction : A function for waiting.
+    Return :
+        Result of the wait function.
+    '''
+
+    global currentLogcatMatcher
+
+    try:
+        result = waitFunction(currentLogcatMatcher)
+    finally:
+        currentLogcatMatcher = None
+
+    return result
+
+def wait(match, timeout = defaultTimeout):
+    u'''
+    Wait finding.
+
+    Arguments :
+        match : Searching string.
         timeout : Timeout seconds.
     Return :
         True if the matching string is matched with log.
         False if the matching string is not matched until timeout.
     '''
 
-    global currentLogcatMatcher
+    return waitFunction(lambda logMatcher: logMatcher.wait(match, timeout))
 
-    result = currentLogcatMatcher.wait(match, timeout)
-    currentLogcatMatcher = None
+def waitPattern(pattern, timeout = defaultTimeout):
+    u'''
+    Wait finding with pattern.
 
-    return result
+    Arguments :
+        pattern : Searching compiled regular expression pattern.
+            This argument must be str or unicode,
+            compiled regular expression pattern.
+        timeout : Timeout seconds.
+    Return :
+        Match object if the pattern is matched with log.
+        None if the pattern is not matched with log.
+    '''
+
+    return waitFunction(
+        lambda logMatcher: logMatcher.waitPattern(pattern, timeout))
