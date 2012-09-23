@@ -29,13 +29,19 @@ import device
 import logmatcher
 
 class TestIntegrationLogMatcher(unittest.TestCase):
+    def executeAm(self):
+        u'''
+        Execute adb am.
+        '''
+        device.get().shell(u'am aaa')
+
     def testMatchingString(self):
         u'''
         Test when log is matched with string.
         '''
-        logmatcher.start()
+        logmatcher.start(u'*:D')
 
-        device.get().shell(u'am aaa')
+        self.executeAm()
 
         self.assert_(logmatcher.wait('Am'))
 
@@ -45,7 +51,7 @@ class TestIntegrationLogMatcher(unittest.TestCase):
         '''
         logmatcher.start()
 
-        device.get().shell(u'am aaa')
+        self.executeAm()
 
         self.assertEquals(u'com.android.commands.am.Am',
             logmatcher.waitPattern(ur'\s([.a-zA-z]+?\.Am)').group(1))
@@ -54,9 +60,21 @@ class TestIntegrationLogMatcher(unittest.TestCase):
         u'''
         Test when log is not matched.
         '''
+        self.executeAm()
         logmatcher.start()
 
         self.assert_(not logmatcher.wait('Am', 1))
+
+    def testNoMatchedWithLogLevel(self):
+        u'''
+        Test when log is not matched because level of matched log is lower.
+        '''
+        self.executeAm()
+        logmatcher.start(u'*:I')
+
+        device.get().shell(u'am aaa')
+
+        self.assert_(not logmatcher.wait('Am', 2))
 
 if __name__ == '__main__':
     device.init()
