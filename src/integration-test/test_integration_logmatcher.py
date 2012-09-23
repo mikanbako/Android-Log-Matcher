@@ -76,6 +76,21 @@ class TestIntegrationLogMatcher(unittest.TestCase):
 
         self.assert_(not logmatcher.wait('Am', 2))
 
+    def testDuplicateStarting(self):
+        u'''
+        Test when logmatcher is started duplicative.
+
+        logmatcher.start raises LogMatcherRunningException.
+        '''
+
+        logmatcher.start()
+        try:
+            self.assertRaises(
+                logmatcher.LogMatcherRunningException, logmatcher.start)
+        finally:
+            # Force termination logmatcher.
+            logmatcher.wait('', 0)
+
 if __name__ == '__main__':
     device.init()
     unittest.main()
