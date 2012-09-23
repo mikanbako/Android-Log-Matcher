@@ -29,12 +29,20 @@ import device
 import logmatcher
 
 class TestIntegrationLogMatcher(unittest.TestCase):
-    def testMatching(self):
+    def testMatchingString(self):
         logmatcher.start()
 
         device.get().shell(u'am aaa')
 
         self.assert_(logmatcher.wait('Am'))
+
+    def testMatchingPattern(self):
+        logmatcher.start()
+
+        device.get().shell(u'am aaa')
+
+        self.assertEquals(u'com.android.commands.am.Am',
+            logmatcher.waitPattern(ur'\s([.a-zA-z]+?\.Am)').group(1))
 
     def testNoMatched(self):
         logmatcher.start()
