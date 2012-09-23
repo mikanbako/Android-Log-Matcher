@@ -30,6 +30,9 @@ import logmatcher
 
 class TestIntegrationLogMatcher(unittest.TestCase):
     def testMatchingString(self):
+        u'''
+        Test when log is matched with string.
+        '''
         logmatcher.start()
 
         device.get().shell(u'am aaa')
@@ -37,6 +40,9 @@ class TestIntegrationLogMatcher(unittest.TestCase):
         self.assert_(logmatcher.wait('Am'))
 
     def testMatchingPattern(self):
+        u'''
+        Test when log is matched with pattern.
+        '''
         logmatcher.start()
 
         device.get().shell(u'am aaa')
@@ -45,6 +51,9 @@ class TestIntegrationLogMatcher(unittest.TestCase):
             logmatcher.waitPattern(ur'\s([.a-zA-z]+?\.Am)').group(1))
 
     def testNoMatched(self):
+        u'''
+        Test when log is not matched.
+        '''
         logmatcher.start()
 
         self.assert_(not logmatcher.wait('Am', 1))
