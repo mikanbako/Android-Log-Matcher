@@ -91,6 +91,16 @@ class TestIntegrationLogMatcher(unittest.TestCase):
             # Force termination logmatcher.
             logmatcher.wait('', 0)
 
+    def testWaitingWhenNotStarted(self):
+        u'''
+        Test when logmatcher tries to wait when it is not started.
+
+        logmatcher.wait raises LogMatcherNotStartedException.
+        '''
+
+        self.assertRaises(
+            logmatcher.LogMatcherNotStartedException, logmatcher.wait, '')
+
 if __name__ == '__main__':
     device.init()
     unittest.main()

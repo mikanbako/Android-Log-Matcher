@@ -254,6 +254,12 @@ class LogMatcherRunningException(Exception):
     '''
     pass
 
+class LogMatcherNotStartedException(Exception):
+    u'''
+    Raised when the LogMatcher is not started.
+    '''
+    pass
+
 # Global LogMatcher.
 currentLogcatMatcher = None
 
@@ -269,7 +275,7 @@ def start(logcatArgument = u''):
 
     global currentLogcatMatcher
 
-    # Check whether global LogMatcher is running.
+    # Check whether the global LogMatcher is running.
     # If it is running, an exception is raised.
     if currentLogcatMatcher:
         raise LogMatcherRunningException()
@@ -293,6 +299,11 @@ def waitFunction(waitFunction):
     '''
 
     global currentLogcatMatcher
+
+    # Check whether the global LogMatcher is running.
+    # If it is not running, an exception is raised.
+    if not currentLogcatMatcher:
+        raise LogMatcherNotStartedException()
 
     try:
         result = waitFunction(currentLogcatMatcher)
