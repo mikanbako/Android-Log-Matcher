@@ -41,7 +41,7 @@ class MockLogMatcher(logmatcher.LogMatcher):
     LogMatcher that creates MockLogcatThread.
     '''
 
-    def createLogcatThread(self):
+    def createLogcatThread(self, logcatArgument):
         return MockLogcatThread()
 
     def createMatchedEvent(self):

@@ -54,7 +54,7 @@ class LogcatThread(Thread):
     Thread that runs logcat.
     '''
 
-    def __init__(self, logListener):
+    def __init__(self, logListener, logcatArgument):
         u'''
         Constructor.
 
@@ -63,6 +63,7 @@ class LogcatThread(Thread):
         Argument :
             logListener : Listener for log.
                 This listener has onLogReceived(line).
+            logcatArgument : String of arguments for logcat.
         '''
         Thread.__init__(self, name = u'LogcatThread')
 
@@ -71,9 +72,11 @@ class LogcatThread(Thread):
         # Do not start logcat in run(). Because run() runs on a created thread
         # and log is forgotten between start() and run().
         subprocess.Popen(
-            u'adb logcat -c', stdout = subprocess.PIPE, shell = True).wait()
+            u'adb logcat -c ' + logcatArgument, stdout = subprocess.PIPE,
+            shell = True).wait()
         self.__adb = subprocess.Popen(
-            u'adb logcat', stdout = subprocess.PIPE, shell = True)
+            u'adb logcat ' + logcatArgument, stdout = subprocess.PIPE,
+            shell = True)
 
         # Lock object for this thread.
         self.__lock = RLock()
@@ -115,25 +118,31 @@ class LogMatcher:
     Monitor and match log from logcat.
     '''
 
-    def start(self):
+    def start(self, logcatArgument = u''):
         u'''
         Start logcat.
+
+        Arguments:
+            logcatArgument : String of arguments for logcat.
         '''
         self.__matchedEvent = self.createMatchedEvent()
-        self.__logcatThread = self.createLogcatThread()
+        self.__logcatThread = self.createLogcatThread(logcatArgument)
         self.__lock = RLock()
         self.__log = u''
         self.__matchFunction = (lambda log: False)
 
         self.__logcatThread.start()
 
-    def createLogcatThread(self):
+    def createLogcatThread(self, logcatArgument):
         u'''
         Create LogcatThread.
 
         This method is for testability.
+
+        Arguments:
+            logcatArgument : String of arguments for logcat.
         '''
-        return LogcatThread(self)
+        return LogcatThread(self, logcatArgument)
 
     def createMatchedEvent(self):
         u'''
@@ -248,10 +257,12 @@ class LogMatcherRunningException(Exception):
 # Global LogMatcher.
 currentLogcatMatcher = None
 
-def start():
+def start(logcatArgument = u''):
     u'''
     Start log matcher.
 
+    Arguments :
+        logcatArgument : String of arguments for logcat.
     Exception :
         LogMatcherRunningException : When log matcher is running.
     '''
@@ -264,7 +275,10 @@ def start():
         raise LogMatcherRunningException()
 
     currentLogcatMatcher = LogMatcher()
-    currentLogcatMatcher.start()
+    try:
+        currentLogcatMatcher.start(logcatArgument)
+    except:
+        currentLogcatMatcher = None
 
 def waitFunction(waitFunction):
     u'''
