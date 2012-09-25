@@ -22,13 +22,13 @@
 import unittest
 
 import device
-import test_integration_logmatcher
+import test_monkeyrunner_logmatcher
 
 def suite():
     loader = unittest.TestLoader()
 
     return unittest.TestSuite(
-        [loader.loadTestsFromModule(test_integration_logmatcher)])
+        [loader.loadTestsFromModule(test_monkeyrunner_logmatcher)])
 
 if __name__ == '__main__':
     device.init()
