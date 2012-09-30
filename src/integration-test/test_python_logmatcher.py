@@ -1,4 +1,4 @@
-#!/usr/bin/env monkeyrunner
+#!/usr/bin/env python
 # coding: UTF-8
 
 # Copyright 2012 Keita Kita
@@ -15,21 +15,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Define test suite for integration test.
-#
-# This test suite is on run monkeyrunner with Android 4.1.
+# Integration test for logmatcher on Python.
 
+import subprocess
 import unittest
 
-import device
-import test_integration_logmatcher
+import logmatcher
 
-def suite():
-    loader = unittest.TestLoader()
 
-    return unittest.TestSuite(
-        [loader.loadTestsFromModule(test_integration_logmatcher)])
+class TestIntegrationLogmatcher(unittest.TestCase):
+    def setUp(self):
+        subprocess.check_call('adb wait-for-device', shell = True)
+
+    def executeAm(self):
+        u'''
+        Execute adb am.
+        '''
+        subprocess.check_call('adb shell am start -a aaa', shell = True)
+
+    def testMatchingString(self):
+        u'''
+        Test when log is matched with string.
+        '''
+        logmatcher.start()
+
+        self.executeAm()
+
+        self.assert_(logmatcher.wait('Am', 10))
 
 if __name__ == '__main__':
-    device.init()
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.main()

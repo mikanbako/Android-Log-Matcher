@@ -45,9 +45,13 @@
     <property name="ci.unit.test.script"
         location="${unit.test.code.directory}/ci_unittest.py" />
 
-    <!-- Script for integration test suite. -->
-    <property name="integration.test.script"
-        location="${integration.test.code.directory}/integration_test_suite.py" />
+    <!-- Script for integration test suite on monkeyrunner. -->
+    <property name="integration.monkeyrunner.test.script"
+        location="${integration.test.code.directory}/monkeyrunner_test_suite.py" />
+
+    <!-- Script for integration test suite on monkeyrunner. -->
+    <property name="integration.python.test.script"
+        location="${integration.test.code.directory}/python_test_suite.py" />
 
     <!--
         Properties for executables.
@@ -128,13 +132,27 @@
         </python>
     </target>
 
-    <target name="integration-test" description="Run integration tests. Require Android emulator or device.">
+    <target name="integration-monkeyrunner-test"
+            description="Run integration tests on monkeyrunner. Require Android emulator or device.">
         <monkeyrunner>
             <args>
-                <arg file="${integration.test.script}" />
+                <arg file="${integration.monkeyrunner.test.script}" />
             </args>
         </monkeyrunner>
     </target>
+
+    <target name="integration-python-test"
+            description="Run integration tests on Python. Require Android emulator or device.">
+        <python>
+            <args>
+                <arg file="${integration.python.test.script}" />
+            </args>
+        </python>
+    </target>
+
+    <target name="integration-all-test"
+        depends="integration-monkeyrunner-test, integration-python-test"
+        description="Run all integration tests." />
 
     <target name="clean" description="Clean generated files.">
         <delete dir="${reports.directory}" />
