@@ -15,21 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Define test suite for integration test on monkeyrunner.
+# Define test suite for integration test on Python.
 #
-# This test suite is on run monkeyrunner with Android 4.1.
+# This test suite is on run CPython 2.7.
 
 import unittest
 
-import device
-import test_monkeyrunner_logmatcher
+import test_python_logmatcher
 
 def suite():
     loader = unittest.TestLoader()
 
     return unittest.TestSuite(
-        [loader.loadTestsFromModule(test_monkeyrunner_logmatcher)])
+        [loader.loadTestsFromModule(test_python_logmatcher)])
 
 if __name__ == '__main__':
-    device.init()
     unittest.TextTestRunner(verbosity = 2).run(suite())

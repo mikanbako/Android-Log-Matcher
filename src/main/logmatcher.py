@@ -23,7 +23,10 @@ from __future__ import with_statement
 import os
 import re
 import subprocess
+import sys
 from threading import Event, Thread, RLock
+
+isJython = sys.platform.startswith('java')
 
 ### Version Depending Function ###
 
@@ -35,14 +38,18 @@ def kill(popen):
         process : Popen object that be killed.
     '''
 
-    # Kill the process via an internal object (java.lang.Process) of
-    # Popen in Jython.
-    #
-    # Because Popen does not have PID in Jython 2.5 and therefore os.kill
-    # cannot be used.
-    # See http://python.6.n6.nabble.com/subprocess-pid-td1766477.html
+    if isJython:
+        # Kill the process via an internal object (java.lang.Process) of
+        # Popen in Jython.
+        #
+        # Because Popen does not have PID in Jython 2.5 and therefore os.kill
+        # cannot be used.
+        # See http://python.6.n6.nabble.com/subprocess-pid-td1766477.html
 
-    popen._process.destroy()
+        popen._process.destroy()
+    else:
+        # Popen.kill can be used from Python 2.6.
+        popen.kill()
 
 ###
 
@@ -92,7 +99,7 @@ class LogcatThread(Thread):
 
         # Notice received log until this thread is terminated.
         with self.__adb.stdout as logcat:
-            for line in logcat:
+            for line in iter(logcat.readline, ''):
                 self.__logListener.onLogReceived(line)
 
                 with self.__lock:

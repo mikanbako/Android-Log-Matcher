@@ -49,6 +49,10 @@
     <property name="integration.monkeyrunner.test.script"
         location="${integration.test.code.directory}/monkeyrunner_test_suite.py" />
 
+    <!-- Script for integration test suite on monkeyrunner. -->
+    <property name="integration.python.test.script"
+        location="${integration.test.code.directory}/python_test_suite.py" />
+
     <!--
         Properties for executables.
     -->
@@ -135,6 +139,15 @@
                 <arg file="${integration.monkeyrunner.test.script}" />
             </args>
         </monkeyrunner>
+    </target>
+
+    <target name="integration-python-test"
+            description="Run integration tests on Python. Require Android emulator or device.">
+        <python>
+            <args>
+                <arg file="${integration.python.test.script}" />
+            </args>
+        </python>
     </target>
 
     <target name="clean" description="Clean generated files.">
