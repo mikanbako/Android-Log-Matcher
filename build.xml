@@ -150,6 +150,10 @@
         </python>
     </target>
 
+    <target name="integration-all-test"
+        depends="integration-monkeyrunner-test, integration-python-test"
+        description="Run all integration tests." />
+
     <target name="clean" description="Clean generated files.">
         <delete dir="${reports.directory}" />
         <delete file=".coverage" />
