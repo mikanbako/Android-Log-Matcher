@@ -127,7 +127,7 @@ class LogMatcher:
 
     def start(self, logcatArgument = u''):
         u'''
-        Start logcat.
+        Start watching logcat.
 
         Arguments:
             logcatArgument : String of arguments for logcat.
@@ -161,7 +161,7 @@ class LogMatcher:
 
     def waitFunction(self, matchFunction, timeout= defaultTimeout):
         u'''
-        Wait called thread until log is matched from the function.
+        Wait called thread until the function returns not None.
 
         If matchFunction returns not None or not False,
         this method also return it.
@@ -193,7 +193,7 @@ class LogMatcher:
 
     def wait(self, match, timeout = defaultTimeout):
         u'''
-        Wait called thread until log is found.
+        Wait called thread until the string is found in log.
 
         Arguments:
             match : Searching string.
@@ -211,7 +211,7 @@ class LogMatcher:
 
     def waitPattern(self, pattern, timeout = defaultTimeout):
         u'''
-        Wait called thread until log is found with pattern.
+        Wait called thread until the pattern is matched in log.
 
         Arguments :
             pattern : Searching pattern. str or unicode,
@@ -272,7 +272,7 @@ currentLogcatMatcher = None
 
 def start(logcatArgument = u''):
     u'''
-    Start log matcher.
+    Start watching logcat.
 
     Arguments :
         logcatArgument : String of arguments for logcat.
@@ -295,7 +295,7 @@ def start(logcatArgument = u''):
 
 def waitFunction(waitFunction):
     u'''
-    Wait using a result of the function.
+    Wait with the function.
 
     It has an argument that receives an instance of LogMatcher.
 
@@ -321,7 +321,7 @@ def waitFunction(waitFunction):
 
 def wait(match, timeout = defaultTimeout):
     u'''
-    Wait finding.
+    Wait until the string is found.
 
     Arguments :
         match : Searching string.
@@ -335,7 +335,7 @@ def wait(match, timeout = defaultTimeout):
 
 def waitPattern(pattern, timeout = defaultTimeout):
     u'''
-    Wait finding with pattern.
+    Wait until the pattern is matched in log.
 
     Arguments :
         pattern : Searching compiled regular expression pattern.
