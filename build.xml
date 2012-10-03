@@ -26,6 +26,9 @@
     <property name="integration.test.code.directory"
         location="src/integration-test" />
 
+    <!-- Path of output files directory. -->
+    <property name="output.files.directory" location="out" />
+
     <!-- Path-like structure for PYTHONPATH -->
     <path id="pythonpath">
         <pathelement location="${main.code.directory}" />
@@ -79,6 +82,19 @@
     <!-- File of XML coverage of unit test report. -->
     <property name="reports.unit.test.coverage.xml"
         location="${reports.directory}/coverage.xml" />
+
+    <!--
+        Properties for release.
+    -->
+
+    <!-- Directory of documentations for distribution. -->
+    <property name="docs.for.distribution.directory"
+        location="docs/for_distribution" />
+
+    <!-- File of archive for release. release.version property is set
+         from command line argument. -->
+    <property name="release.archive"
+        location="${output.files.directory}/AndroidLogMatcher-${release.version}.zip" />
 
     <!--
         Macros and targets for test.
@@ -155,6 +171,7 @@
         description="Run all integration tests." />
 
     <target name="clean" description="Clean generated files.">
+        <delete dir="${output.files.directory}" />
         <delete dir="${reports.directory}" />
         <delete file=".coverage" />
     </target>
@@ -239,5 +256,26 @@
         </coverage>
 
         <echo message="XML coverage of unit test report is ${reports.unit.test.coverage.xml}" />
+    </target>
+
+    <!--
+        Target for release.
+    -->
+
+    <target name="release" description="Create a zip archive for release. Require release.version property.">
+        <fail unless="release.version"
+            message="Specify release.version property."/>
+
+        <zip destfile="${release.archive}">
+            <fileset dir="${docs.for.distribution.directory}" />
+            <fileset dir="${main.code.directory}">
+                <include name="**/*.py" />
+            </fileset>
+            <fileset dir=".">
+                <include name="README*.txt" />
+            </fileset>
+        </zip>
+
+        <echo message="The archive is created to ${release.archive}" />
     </target>
 </project>
