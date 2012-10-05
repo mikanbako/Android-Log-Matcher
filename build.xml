@@ -60,9 +60,12 @@
         Properties for executables.
     -->
 
+    <condition property="bat" value=".bat" else="">
+        <os family="windows" />
+    </condition>
     <property name="python" value="python" />
     <property name="coverage" value="coverage" />
-    <property name="monkeyrunner" value="monkeyrunner" />
+    <property name="monkeyrunner" value="monkeyrunner${bat}" />
 
     <!--
         Properties for reports.
