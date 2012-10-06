@@ -293,14 +293,14 @@ def start(logcatArgument = u''):
     except:
         currentLogcatMatcher = None
 
-def waitFunction(waitFunction):
+def waitFunction(callingWaitFunction):
     u'''
     Wait with the function.
 
     It has an argument that receives an instance of LogMatcher.
 
     Arguments :
-        waitFunction : A function for waiting.
+        callingWaitFunction : A function for waiting.
     Return :
         Result of the wait function.
     '''
@@ -313,7 +313,7 @@ def waitFunction(waitFunction):
         raise LogMatcherNotStartedException()
 
     try:
-        result = waitFunction(currentLogcatMatcher)
+        result = callingWaitFunction(currentLogcatMatcher)
     finally:
         currentLogcatMatcher = None
 
