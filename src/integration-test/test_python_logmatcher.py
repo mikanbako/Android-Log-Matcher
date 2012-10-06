@@ -31,7 +31,9 @@ class TestIntegrationLogmatcher(unittest.TestCase):
         u'''
         Execute adb am.
         '''
-        subprocess.check_call('adb shell am start -a aaa', shell = True)
+        popen = subprocess.Popen('adb shell am start -a aaa',
+            stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+        popen.communicate()
 
     def testMatchingString(self):
         u'''
