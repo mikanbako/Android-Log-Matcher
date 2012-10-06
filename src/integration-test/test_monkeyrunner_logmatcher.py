@@ -33,7 +33,7 @@ class TestIntegrationLogMatcher(unittest.TestCase):
         u'''
         Execute adb am.
         '''
-        device.get().shell(u'am aaa')
+        device.get().shell(u'am start -a aaa')
 
     def testMatchingString(self):
         u'''
