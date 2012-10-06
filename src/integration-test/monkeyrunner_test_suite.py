@@ -19,6 +19,11 @@
 #
 # This test suite is on run monkeyrunner with Android 4.1.
 
+import os
+import sys
+
+sys.path.extend(os.environ['PYTHONPATH'].split(os.pathsep))
+
 import unittest
 
 import device
