@@ -6,3 +6,8 @@
 .coverage
 reports
 out
+local.properties
+bin
+gen
+.classpath
+.project
