@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.github.mikanbako.androidlogmatcher.testapplication"
+      android:versionCode="1"
+      android:versionName="1.0">
+    <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
+        <receiver android:name=".RequestReceiver">
+            <intent-filter>
+                <action android:name="com.github.mikanbako.androidlogmatcher.testapplication.action.JAPANESE_LOG" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
