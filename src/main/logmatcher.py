@@ -26,7 +26,16 @@ import subprocess
 import sys
 from threading import Event, Thread, RLock
 
+# Whether this script is running on Jython.
 isJython = sys.platform.startswith('java')
+
+# Whether this script is running on Windows.
+if isJython:
+    from java.lang import System
+    isWindows = System.getProperty(u'os.name', u'').lower().startswith(
+        u'windows')
+else:
+    isWindows = sys.platform.startswith('win')
 
 ### Version Depending Function ###
 
@@ -78,12 +87,17 @@ class LogcatThread(Thread):
         #
         # Do not start logcat in run(). Because run() runs on a created thread
         # and log is forgotten between start() and run().
+        #
+        # Use shell on no Windows only. Because this script will kill the
+        # created process, but on windows, shell only is killed and adb process
+        # remains.
+        useShell = not isWindows
         subprocess.Popen(
             u'adb logcat -c ' + logcatArgument, stdout = subprocess.PIPE,
-            shell = True).wait()
+            shell = useShell).wait()
         self.__adb = subprocess.Popen(
             u'adb logcat ' + logcatArgument, stdout = subprocess.PIPE,
-            shell = True)
+            shell = useShell)
 
         # Lock object for this thread.
         self.__lock = RLock()
