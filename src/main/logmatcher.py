@@ -91,6 +91,11 @@ class LogcatThread(Thread):
         self.__logListener = logListener
         self.__isTerminated = False
 
+        # This thread is daemon thread to prevent that this thread is running
+        # forever. Because this thread is blocked by reading with
+        # the standard output.
+        self.setDaemon(True)
+
     def run(self):
         # If this thread has already terminated, finish this thread.
         with self.__lock:
