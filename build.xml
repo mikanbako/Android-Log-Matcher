@@ -67,12 +67,8 @@
     <condition property="bat" value=".bat" else="">
         <os family="windows" />
     </condition>
-    <condition property="exe" value=".exe" else="">
-        <os family="windows" />
-    </condition>
     <property name="python" value="python" />
     <property name="coverage" value="coverage" />
-    <property name="adb" value="adb${exe}" />
     <property name="android" value="android${bat}" />
     <property name="monkeyrunner" value="monkeyrunner${bat}" />
 
