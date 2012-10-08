@@ -1,0 +1,4 @@
+* 2012-10-08 Keita Kita <maoutwo@gmail.com>
+
+    * Version 0.1 as first release.
+
