@@ -80,7 +80,7 @@ class TestMatchingLog(unittest.TestCase):
         u'''
         LogMatcher does not match when it did not receive matched log.
         '''
-        self.__matcher.onLogReceived(u'matched')
+        self.__matcher.onLogReceived('matched')
 
         self.assert_(self.__matcher.wait(u'not matched', 0.1) == False)
 
@@ -88,8 +88,8 @@ class TestMatchingLog(unittest.TestCase):
         u'''
         LogMatcher matches before waiting to receive log.
         '''
-        self.__matcher.onLogReceived(u'matc')
-        self.__matcher.onLogReceived(u'hing')
+        self.__matcher.onLogReceived('matc')
+        self.__matcher.onLogReceived('hing')
 
         self.assert_(self.__matcher.wait(u'match', 0.1) == True)
 
@@ -98,7 +98,7 @@ class TestMatchingLog(unittest.TestCase):
         LogMatcher matches after waiting to receive log.
         '''
         def sendLog(logMatcher):
-            logMatcher.onLogReceived(u"matched")
+            logMatcher.onLogReceived("matched")
 
         threading.Timer(1, sendLog, [self.__matcher]).start()
         self.assert_(self.__matcher.wait(u'match') == True)
@@ -107,7 +107,7 @@ class TestMatchingLog(unittest.TestCase):
         u'''
         LogMatcher does not match pattern when it did not receive matched log.
         '''
-        self.__matcher.onLogReceived(u'matched')
+        self.__matcher.onLogReceived('matched')
 
         self.assert_(
             self.__matcher.waitPattern(
@@ -117,7 +117,7 @@ class TestMatchingLog(unittest.TestCase):
         u'''
         LogMatcher matches pattern before waiting to receive log.
         '''
-        self.__matcher.onLogReceived(u'ba123b')
+        self.__matcher.onLogReceived('ba123b')
 
         self.assertEqual(u'123',
             self.__matcher.waitPattern(re.compile(ur'a(\d+)b')).group(1))
@@ -127,7 +127,7 @@ class TestMatchingLog(unittest.TestCase):
         LogMatcher matches after waiting to receive log.
         '''
         def sendLog(logMatcher):
-            logMatcher.onLogReceived(u'a123b')
+            logMatcher.onLogReceived('a123b')
 
         threading.Timer(1, sendLog, [self.__matcher]).start()
         self.assertEquals(u'123',
