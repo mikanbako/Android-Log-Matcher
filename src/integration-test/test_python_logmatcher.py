@@ -22,18 +22,21 @@ import unittest
 
 import logmatcher
 
+def adb(argument):
+    u'''
+    Execute adb command.
+
+    Arguments :
+        argument : String of argument of adb.
+    '''
+    # Prevent to output log to the console.
+    popen = subprocess.Popen('adb ' + argument,
+        stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+    popen.communicate()
 
 class TestIntegrationLogmatcher(unittest.TestCase):
     def setUp(self):
-        subprocess.check_call('adb wait-for-device', shell = True)
-
-    def executeAm(self):
-        u'''
-        Execute adb am.
-        '''
-        popen = subprocess.Popen('adb shell am start -a aaa',
-            stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
-        popen.communicate()
+        adb('wait-for-device')
 
     def testMatchingString(self):
         u'''
@@ -41,9 +44,21 @@ class TestIntegrationLogmatcher(unittest.TestCase):
         '''
         logmatcher.start()
 
-        self.executeAm()
+        adb('shell am start -a aaa')
 
         self.assert_(logmatcher.wait('Am', 10))
+
+    def testMatchingJapaneseString(self):
+        u'''
+        Test when log is matched with Japanese string.
+        '''
+        logmatcher.start()
+
+        adb('shell am broadcast -a ' +
+            'com.github.mikanbako.androidlogmatcher.testapplication.action.JAPANESE_LOG ' +
+            '--include-stopped-packages')
+
+        self.assert_(logmatcher.wait(u'日本語のログ'))
 
 if __name__ == '__main__':
     unittest.main()

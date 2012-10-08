@@ -56,6 +56,10 @@
     <property name="integration.python.test.script"
         location="${integration.test.code.directory}/python_test_suite.py" />
 
+    <!-- Directory of android application for integration test. -->
+    <property name="integration.test.android.application.directory"
+        location="tools/integration-test-android-application" />
+
     <!--
         Properties for executables.
     -->
@@ -63,8 +67,13 @@
     <condition property="bat" value=".bat" else="">
         <os family="windows" />
     </condition>
+    <condition property="exe" value=".exe" else="">
+        <os family="windows" />
+    </condition>
     <property name="python" value="python" />
     <property name="coverage" value="coverage" />
+    <property name="adb" value="adb${exe}" />
+    <property name="android" value="android${bat}" />
     <property name="monkeyrunner" value="monkeyrunner${bat}" />
 
     <!--
@@ -151,7 +160,50 @@
         </python>
     </target>
 
+    <target name="-check-local-properties-of-integration-test-android-application">
+        <condition
+                property="local.properties.of.integration.test.android.application.exists">
+            <available
+                file="${integration.test.android.application.directory}/local.properties" />
+        </condition>
+    </target>
+
+    <target name="-create-local-properties-of-integration-test-android-application"
+          depends="-check-local-properties-of-integration-test-android-application"
+          unless="local.properties.of.integration.test.android.application.exists">
+        <exec executable="${android}" searchpath="true" failonerror="true"
+                taskname="create local.properties">
+            <arg line="update project"/>
+            <arg value="--name" />
+            <arg value="IntegrationTestAndroidApplication" />
+            <arg value="--path" />
+            <arg value="${integration.test.android.application.directory}" />
+        </exec>
+    </target>
+
+    <target name="install-integration-test-android-application"
+            depends="-create-local-properties-of-integration-test-android-application"
+            description="Install an Android application for integration test.">
+        <ant dir="${integration.test.android.application.directory}"
+                useNativeBasedir="true" inheritAll="false"
+                taskname="build and install">
+            <target name="debug" />
+            <target name="install" />
+        </ant>
+    </target>
+
+    <target name="uninstall-integration-test-android-application"
+            depends="-create-local-properties-of-integration-test-android-application"
+            description="Uninstall the Android application for integration test.">
+        <ant dir="${integration.test.android.application.directory}"
+                useNativeBasedir="true" inheritAll="false"
+                taskname="uninstall">
+            <target name="uninstall" />
+        </ant>
+    </target>
+
     <target name="integration-monkeyrunner-test"
+            depends="install-integration-test-android-application"
             description="Run integration tests on monkeyrunner. Require Android emulator or device.">
         <monkeyrunner>
             <args>
@@ -161,6 +213,7 @@
     </target>
 
     <target name="integration-python-test"
+            depends="install-integration-test-android-application"
             description="Run integration tests on Python. Require Android emulator or device.">
         <python>
             <args>
@@ -177,6 +230,9 @@
         <delete dir="${output.files.directory}" />
         <delete dir="${reports.directory}" />
         <delete file=".coverage" />
+
+        <ant dir="${integration.test.android.application.directory}"
+            target="clean" useNativeBasedir="true" inheritAll="false" />
     </target>
 
     <!--
