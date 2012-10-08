@@ -256,7 +256,8 @@ class LogMatcher:
 
         # Store the line.
         with self.__lock:
-            self.__log += unicode(line)
+            # logcat outputs logs in UTF-8.
+            self.__log += unicode(line, 'utf8', 'replace')
 
         # If the line is matched, terminate the logcat and
         # wake the waiting event.

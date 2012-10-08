@@ -29,7 +29,7 @@ import device
 import logmatcher
 
 class TestIntegrationLogMatcher(unittest.TestCase):
-    def executeAm(self):
+    def executeAmWithDummyArgument(self):
         u'''
         Execute adb am.
         '''
@@ -41,9 +41,22 @@ class TestIntegrationLogMatcher(unittest.TestCase):
         '''
         logmatcher.start(u'*:D')
 
-        self.executeAm()
+        self.executeAmWithDummyArgument()
 
         self.assert_(logmatcher.wait('Am'))
+
+    def testMatchingJapaneseString(self):
+        u'''
+        Test when log is matched with Japanese string.
+        '''
+        logmatcher.start()
+
+        device.get().shell(
+            u'am broadcast -a ' +
+            u'com.github.mikanbako.androidlogmatcher.testapplication.action.JAPANESE_LOG ' +
+            u'--include-stopped-packages')
+
+        self.assert_(logmatcher.wait(u'日本語のログ'))
 
     def testMatchingPattern(self):
         u'''
@@ -51,16 +64,29 @@ class TestIntegrationLogMatcher(unittest.TestCase):
         '''
         logmatcher.start()
 
-        self.executeAm()
+        self.executeAmWithDummyArgument()
 
         self.assertEquals(u'com.android.commands.am.Am',
             logmatcher.waitPattern(ur'\s([.a-zA-z]+?\.Am)').group(1))
+
+    def testMatchingJapanesePattern(self):
+        u'''
+        Test when log is matched with Japanese pattern.
+        '''
+        logmatcher.start()
+
+        device.get().shell(
+            u'am broadcast -a ' +
+            u'com.github.mikanbako.androidlogmatcher.testapplication.action.JAPANESE_LOG ' +
+            u'--include-stopped-packages')
+
+        self.assert_(logmatcher.waitPattern(ur'日本語.ログ'))
 
     def testNoMatched(self):
         u'''
         Test when log is not matched.
         '''
-        self.executeAm()
+        self.executeAmWithDummyArgument()
         logmatcher.start()
 
         self.assert_(not logmatcher.wait('Am', 1))
@@ -69,7 +95,7 @@ class TestIntegrationLogMatcher(unittest.TestCase):
         u'''
         Test when log is not matched because level of matched log is lower.
         '''
-        self.executeAm()
+        self.executeAmWithDummyArgument()
         logmatcher.start(u'*:I')
 
         device.get().shell(u'am aaa')
