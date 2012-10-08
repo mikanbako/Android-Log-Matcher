@@ -252,7 +252,12 @@ class LogMatcher:
         Called when line is received.
 
         This method is called by other thread.
+
+        Arguments :
+            line : str that represents log. Unicode string cannot be accepted.
         '''
+        if not isinstance(line, str):
+            raise ValueError(u'line is not str : ' + unicode(type(line)))
 
         # Store the line.
         with self.__lock:
