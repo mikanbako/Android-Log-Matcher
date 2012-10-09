@@ -59,7 +59,7 @@ APIリファレンス：
         引数：
 
             logcatArgument :
-                adb logcatのコマンドライン引数を表す、strもしくはunicode値q。
+                adb logcatのコマンドライン引数を表す、strもしくはunicode値。
 
     logmatcher.wait(match, timeout = defaultTimeout)
 
